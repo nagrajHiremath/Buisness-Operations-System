@@ -10,6 +10,8 @@ import com.bos.config.order.dto.OrderItemResponse;
 import com.bos.config.order.dto.OrderResponse;
 import com.bos.config.order.entity.OrderEntity;
 import com.bos.config.order.entity.OrderItemEntity;
+import com.bos.config.order.exceptions.CatalogItemNotFoundException;
+import com.bos.config.order.exceptions.OrderValidationException;
 import com.bos.config.order.repository.OrderItemRepository;
 import com.bos.config.order.repository.OrderRepository;
 import jakarta.transaction.Transactional;
@@ -51,7 +53,7 @@ public class OrderService {
         for (CreateOrderItemRequest itemRequest : request.getItems()) {
 
             CatalogItemEntity catalogItem = catalogItemRepository.findById(itemRequest.getCatalogItemId())
-                    .orElseThrow(() -> new RuntimeException(
+                    .orElseThrow(() -> new CatalogItemNotFoundException(
                             "Catalog item not found: " + itemRequest.getCatalogItemId()));
 
             OrderItemEntity orderItem = new OrderItemEntity();
@@ -91,12 +93,12 @@ public class OrderService {
 
     private void validateCreateOrderRequest(CreateOrderRequest request) {
         if (request.getItems() == null || request.getItems().isEmpty()) {
-            throw new RuntimeException("At least one item is required");
+            throw new OrderValidationException("At least one item is required");
         }
 
         if (request.getOrderType() == OrderType.DINE_IN &&
-                (request.getContext().getTableNumber() == null || request.getContext().getTableNumber().isBlank())) {
-            throw new RuntimeException("Table number is required for dine-in orders");
+                (request.getContext() == null || request.getContext().getTableNumber() == null || request.getContext().getTableNumber().isBlank())) {
+            throw new OrderValidationException("Table number is required for dine-in orders");
         }
     }
 

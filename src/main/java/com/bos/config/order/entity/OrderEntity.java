@@ -21,7 +21,7 @@ public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
-    private Long orderId;
+    private Long id;
 
     // business reference (important for multi-tenant later)
     @Column(name = "business_id", nullable = false)
